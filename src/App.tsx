@@ -3,7 +3,7 @@
 // ============================================================================
 
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastProvider } from './components/feedback/Toast';
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
@@ -64,7 +64,7 @@ const PageLoadingFallback: React.FC = () => (
 export function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
+      <HashRouter>
         <AppLayout>
           <Suspense fallback={<PageLoadingFallback />}>
             <Routes>
@@ -88,7 +88,7 @@ export function App() {
             </Routes>
           </Suspense>
         </AppLayout>
-      </BrowserRouter>
+      </HashRouter>
     </ToastProvider>
   );
 }
