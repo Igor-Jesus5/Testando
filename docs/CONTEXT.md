@@ -1,166 +1,136 @@
-# MES Plastico — Contexto do Projeto
+# MES Plastico — Contexto do Projeto e Guia para Agentes
 
-## 📋 Visão Geral
-
-**Projeto:** Sistema MES (Manufacturing Execution System) para Indústria de Embalagens Plásticas Flexíveis.
-
-**Pilar Tecnológico:** Aplicação Web PWA (Progressive Web App) com arquitetura Local-First e capacidade de sincronização em nuvem.
-
-**Stack Frontend:** React 19 + TypeScript + Vite + Tailwind CSS v4
+> **DIRETRIZ OBRIGATÓRIA PARA AGENTES DE IA (QUALQUER MODELO):**
+> Antes de implementar, modificar ou sugerir qualquer mudança neste repositório, LEIA ESTE DOCUMENTO INTEGRALMENTE.
+> Todas as entregas devem seguir os padrões de arquitetura, design system, motion principles e esteira de qualidade aqui estipulados.
 
 ---
 
-## 🏗️ Arquitetura
+## 1. 📋 Visão Geral do Projeto
 
-### Módulos do Sistema
-
-1. **Tablet de Máquina** — Interfaces por setor (Extrusão, Impressão, Corte e Solda)
-2. **Painel do Supervisor** — Organizado por setor com Andon e Kanban
-3. **Dashboard Executivo** — KPIs globais + Copiloto IA
-4. **Autenticação** — Login por PIN numérico com níveis de permissão
-
-### Perfis de Acesso
-
-| Perfil | Acesso | Login |
-|--------|--------|-------|
-| Operador | Tablet da sua máquina | PIN 4 dígitos |
-| Preparador | Tablet + Setup release | PIN 4 dígitos |
-| Supervisor | Painel Supervisor completo | PIN 4 dígitos |
-| Dono/Gestor | Dashboard Executivo + IA | PIN 4 dígitos |
+- **Projeto:** Sistema MES (Manufacturing Execution System) para Indústria de Embalagens Plásticas Flexíveis.
+- **Pilar Tecnológico:** Aplicação Web PWA (Progressive Web App) rodando em arquitetura Local-First (Edge Computing) com Sincronização em Nuvem (Cloud Sync) e Inteligência Artificial Gerencial.
+- **Ambiente Operacional:** Tablets Android de 10 polegadas fixados em braços articulados das máquinas industriais em modo Kiosk (tela cheia) e Navegadores Desktop/Mobile para o Portal Executivo.
 
 ---
 
-## 🎨 Design System
+## 2. 🏗️ Arquitetura de Rede Dual (Edge Local + Cloud Sync)
 
-### Cores Andon (Padrão Industrial Universal)
-
-| Status | Cor | Hex | Uso |
-|--------|-----|-----|-----|
-| 🟢 Produzindo | Verde | `#22C55E` | Produção normal |
-| 🟡 Setup | Amarelo | `#EAB308` | Regulação / Troca |
-| 🔴 Parada | Vermelho | `#EF4444` | Defeito / Manutenção |
-| 🔵 Chamado | Azul | `#3B82F6` | Suporte ativo |
-
-### Diretrizes UI/UX Industrial
-
-- **Touch targets:** mínimo 64×64px (operação com luvas)
-- **Teclado numérico:** customizado, sem teclado do SO
-- **Regra dos 3 cliques:** nenhuma ação rotineira exige navegação profunda
-- **Tipografia:** Inter (400/500/600/700/800)
-- **Tema:** Dark (bg #0F172A)
-
-### Motion Principles (Emil Kowalski — Restraint & Speed)
-
-- Transições < 300ms, idealmente ~180ms
-- `transition-all duration-200 ease-out` como padrão
-- Animações apenas funcionais — sem gratuitidade
-- `active:scale-95` para feedback de botão
-- Skeleton screens com shimmer para carregamento
-- `prefers-reduced-motion` respeitado em todos os componentes
+1. **Servidor Local (Edge Server - Chão de Fábrica):**
+   - Mini PC / Edge Server na rede física local (PostgreSQL + Node.js/TypeScript).
+   - Tablets conectam-se via Wi-Fi local sem dependência de internet externa (**0% dependência de internet para a operação da fábrica**).
+2. **Cloud Sync Worker:**
+   - Worker em background sincroniza dados acumulados com espelho na nuvem (Supabase / AWS).
+3. **Portal Executivo:**
+   - Acesso web externo seguro via autenticação com controle de níveis por perfil (Operador, Preparador, Supervisor, Dono).
 
 ---
 
-## 🔧 Padrões de Desenvolvimento
+## 3. 🎨 Design System Industrial & Motion Principles
 
-### Workflow GitHub
+### Padrão Universal de Cores Industriais (Andon Visual)
+- 🟢 **Verde (`#22C55E`):** Produção Normal / Em Andamento
+- 🟡 **Amarelo (`#EAB308`):** Setup / Regulação / Troca de Lote
+- 🔴 **Vermelho (`#EF4444`):** Parada Não Planejada / Defeito / Manutenção
+- 🔵 **Azul (`#3B82F6`):** Chamado de Suporte Ativo / Aguardando Atendimento
+- **Superfícies Dark:** `bg-surface-900` (`#0F172A`), `bg-surface-800` (`#1E293B`), `bg-surface-700` (`#334155`)
 
-1. **Issues** categorizadas como: `nova-função`, `melhoria`, `correção`
-2. **Pull Requests** obrigatórios com:
-   - Issue relacionada mencionada
-   - Descrição do que mudou
-   - Como foi validado
-   - Riscos, limitações e próximos passos
-3. **Branch principal** (`main`) protegida — código entra via PR
+### Diretrizes de UI/UX Industrial
+- **Touch Targets Extra Grandes:** Área de toque mínima de **64x64px** para operação segura com luvas ou mãos com graxa.
+- **Teclado Numérico Customizado Nativo (`NumericKeypad`):** NUNCA invocar o teclado padrão do sistema operacional em campos industriais. Usar o teclado pop-up virtual.
+- **Regra dos 3 Cliques:** Nenhuma ação rotineira do operador deve exigir mais de 3 cliques.
 
-### Qualidade de Código
-
-- **Linting:** Biome (quando configurado)
-- **Testes:** Vitest (unit) + Playwright (e2e)
-- **Lazy loading:** React.lazy + Suspense por rota
-- **Code splitting:** chunks separados (react-vendor, router, charts)
-- **Componentização:** DRY sem abstrações prematuras
-
-### Princípios de Arquitetura
-
-- ❌ Evitar overengineering
-- ❌ Evitar bottlenecks absurdos
-- ✅ Componentizar desde o início
-- ✅ Aplicar DRY com critério
-- ✅ Não reconstruir componentes existentes
-- ✅ Performance budget respeitado
+### Motion Principles (Síntese Emil Kowalski / Jakub Krehel / Jhey Tompkins)
+Referência: [design-principles](https://github.com/kylezantos/design-principles)
+- **Restraint & Speed:** Transições ultra-rápidas (**< 300ms, idealmente ~180-200ms**).
+- **Sem "Motion Slop":** Nada de animações lentas, pulsações gratuitas em todos os elementos ou transições que atrasem o operador.
+- **Propriedades Otimizadas:** Animar exclusivamente `transform` (`translate`, `scale`) e `opacity`.
+- **Skeleton Screens:** Uso obrigatório de `SkeletonCard`, `SkeletonTable` e `.skeleton-loader` com efeito shimmer durante carregamento.
+- **Feedback Tátil/Visual:** `active:scale-95` em botões e estados de progresso em ações interativas.
+- **Acessibilidade:** `prefers-reduced-motion` estritamente respeitado em todo o CSS.
 
 ---
 
-## 📁 Estrutura de Pastas
+## 4. 🚀 Governança de Código & Workflow GitHub
+
+### Issues do Repositório
+Todas as tarefas devem ser previamente mapeadas em Issues no GitHub categorizadas como:
+- `nova-função`
+- `melhoria`
+- `correção`
+
+### Pull Requests Obrigatórios
+Nenhum código entra diretamente na branch `main`. Todo Pull Request deve:
+1. Mencionar a Issue relacionada (`Closes #X`);
+2. Explicar o que mudou detalhadamente;
+3. Descrever como foi validado;
+4. Registrar riscos, limitações e próximos passos;
+5. Passar pela Esteira de Qualidade no GitHub Actions.
+
+---
+
+## 5. 🛡️ Esteira de Qualidade, Observabilidade & Arquitetura
+
+### 1. Observabilidade
+- Preparação para Sentry (captura de erros no client PWA), Datadog/New Relic (telemetria de Edge) e OpenTelemetry.
+
+### 2. Qualidade e Lint de Código
+- Tipagem TypeScript estrita (sem uso de `any` frouxo).
+- Linting estruturado com Biome / Oxlint.
+- Verificação de imports não utilizados e bundle boundaries.
+
+### 3. Testes
+- Testes unitários de helpers e cálculos de KPIs.
+- Testes de integração de fluxo de Pista Dupla e liberação de Setup com PIN.
+- Testes End-to-End com Playwright (modo Kiosk / tablet).
+
+### 4. Segurança e Operação
+- Rate limit nas chamadas de Edge Sync.
+- Separação clara entre frontend PWA e backend Edge/Cloud.
+- Isolamento de permissões por perfil (Operador não acessa telas de Supervisor nem Dashboard do Dono).
+
+### 5. Princípios de Arquitetura
+- **Evitar Overengineering:** Simplicidade de manutenção em ambiente de fábrica.
+- **Componentizar desde o início:** Reutilizar primitivos de `src/components/ui/` e `src/components/industrial/`.
+- **Impedir reconstrução de componentes existentes:** Consulte sempre `src/components/` antes de criar algo novo.
+- **DRY com critério:** Evitar acoplamento prematuro entre setores que têm lógicas divergentes (ex: Corte vs. Extrusão).
+
+---
+
+## 6. 📁 Estrutura de Diretórios
 
 ```
-src/
-├── components/
-│   ├── ui/          → Primitivos (Button, Card, Modal, Input, Badge, Toggle, Table, Tabs, ProgressBar)
-│   ├── industrial/  → Componentes industriais (NumericKeypad, AndonStatus, MachineCard, CounterDisplay)
-│   ├── layout/      → Layout (Sidebar, Header, PageContainer)
-│   └── feedback/    → Feedback (Skeleton, Toast)
-├── pages/
-│   ├── auth/        → LoginPage (PIN)
-│   ├── tablet/
-│   │   ├── extrusion/  → ExtrusionPage
-│   │   ├── printing/   → PrintingPage
-│   │   └── cutting/    → CuttingPage
-│   ├── supervisor/     → SupervisorPage
-│   └── executive/      → ExecutivePage
-├── hooks/           → Custom hooks (useLocalStorage, useElapsedTime)
-├── store/           → State management
-├── data/            → Mock data
-├── utils/           → Helpers
-└── types/           → TypeScript types
+plastico-mes/
+├── .github/
+│   ├── ISSUE_TEMPLATE/       # Templates de Nova Função, Melhoria e Correção
+│   ├── workflows/            # Pipeline CI/CD de qualidade
+│   └── PULL_REQUEST_TEMPLATE.md
+├── docs/
+│   └── CONTEXT.md            # Este guia
+├── public/
+│   ├── manifest.json         # Manifesto PWA
+│   ├── sw.js                 # Service Worker (Local-First Cache)
+│   └── favicon.svg           # Ícone do sistema
+├── src/
+│   ├── components/
+│   │   ├── ui/               # Button, Card, Modal, Input, Badge, Toggle, ProgressBar, Table, Tabs
+│   │   ├── industrial/       # NumericKeypad, AndonStatus, MachineCard, CounterDisplay
+│   │   ├── layout/           # Header, Sidebar, PageContainer
+│   │   └── feedback/         # Skeleton, Toast
+│   ├── pages/
+│   │   ├── auth/             # LoginPage (PIN)
+│   │   ├── tablet/
+│   │   │   ├── extrusion/    # ExtrusionPage (Filme, Zonas de Temperatura, Bobina Mãe)
+│   │   │   ├── printing/     # PrintingPage (Pantone, Corona, Ancoragem, Refile)
+│   │   │   └── cutting/      # CuttingPage (Pista Simples/Dupla, Contador 500un, 3x Inspeção)
+│   │   ├── supervisor/       # SupervisorPage (Filtro Estrito por Setor, Kanban, Liberação Setup)
+│   │   └── executive/        # ExecutivePage (3 Blocos Sequenciais, Balanço de Massa, IA Copilot)
+│   ├── data/                 # mockData.ts
+│   ├── hooks/                # useLocalStorage, useElapsedTime
+│   ├── types/                # index.ts (Definições TypeScript)
+│   ├── utils/                # helpers.ts (Cálculos de rendimento, formatações pt-BR)
+│   ├── App.tsx               # Roteamento e Lazy Loading com Suspense
+│   ├── index.css             # Tailwind v4, temas e animações
+│   └── main.tsx              # Ponto de entrada
+└── vite.config.ts
 ```
-
----
-
-## 📊 Módulos Detalhados
-
-### Setor 1: Extrusão
-- Ficha técnica com formulações (PEBD, PEAD, Linear, Pigmento, EVA)
-- Temperaturas das zonas do canhão (Z1-Z5)
-- Rastreabilidade de matéria-prima (lote)
-- "Concluir Bobina Mãe" com peso bruto e QR Code
-
-### Setor 2: Impressão / Rebobinadeira
-- QR Code da bobina da extrusão
-- Validação Pantone + Corona (38-42 dynas) + Ancoragem
-- Apontamento de aparas (Kg)
-
-### Setor 3: Corte e Solda
-- Pista Simples / Dupla (toggle com 2 cards independentes)
-- Contador de pacotes/fardos (500 un por pacote)
-- Checklist de qualidade 3x por bobina (Início/Meio/Fim)
-- Apontamento de refugo com motivo
-- Chamados Andon rápidos
-
-### Painel Supervisor
-- Seletor de setor (Extrusão | Impressão | Corte e Solda)
-- Cards de status filtrados por setor
-- Central Andon com tempo decorrido
-- Fila Kanban de OPs
-- Liberação de Setup com PIN
-
-### Dashboard Executivo
-- KPIs globais (produção, eficiência, refugo)
-- Visão do galpão em 3 blocos
-- Tabela de produtividade por turno
-- Balanço de massa
-- Copiloto IA (chat com histórico)
-
----
-
-## 🚀 Próximos Passos (Backend — Futuro)
-
-- Node.js/TypeScript backend com PostgreSQL
-- Servidor local (Edge) + Sincronização em nuvem
-- Autenticação JWT/OAuth2
-- WebSocket para dados em tempo real
-- API RESTful para o Copiloto IA
-
----
-
-> **INSTRUÇÃO PARA AGENTES:** Antes de implementar qualquer mudança neste projeto, leia este arquivo por completo. Siga os padrões de design, cores Andon, motion principles e workflow GitHub descritos acima. Não crie componentes que já existem. Utilize mock data para demonstração.
